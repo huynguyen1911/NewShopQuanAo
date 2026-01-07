@@ -8,3 +8,5 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+finalize-baseline.ps1
+SPRINT-TIMELINE.md
