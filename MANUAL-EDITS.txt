@@ -1,0 +1,38 @@
+﻿MANUAL EDITS CHECKLIST
+======================
+
+Edit these files manually:
+
+1. be/src/routes/customer.js
+   - Remove: const GoogleAuthController = require...
+   - Remove: router.post('/google-login'...)
+
+2. be/src/routes/index.js
+   - Remove: const vnpay = require...
+   - Remove: server.use('/api/vnpay'...)
+
+3. be/src/models/user.js
+   - Remove: google_id field
+
+4. be/src/models/customer_info.js
+   - Remove: avatar field
+
+5. be/src/models/order.js
+   - Remove: payment_method and payment_status fields
+
+6. fe-landing/components/login.jsx
+   - Remove all Google login code
+
+7. fe-landing/pages/_app.jsx
+   - Remove GoogleOAuthProvider wrapper
+
+8. be/package.json
+   - Remove: google-auth-library
+
+9. fe-landing/package.json
+   - Remove: @react-oauth/google
+
+After editing:
+- cd be && npm install && npm start
+- cd fe-landing && npm install && npm run dev
+- Run: .\finalize-baseline.ps1
