@@ -9,4 +9,6 @@ build/
 .DS_Store
 Thumbs.db
 finalize-baseline.ps1
+setup-baseline.ps1
 SPRINT-TIMELINE.md
+MANUAL-EDITS.txt
