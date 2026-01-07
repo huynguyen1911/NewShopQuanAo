@@ -14,6 +14,7 @@ const User = sequelize.define(
     },
     email: { type: DataTypes.STRING, allowNull: false },
     password: { type: DataTypes.STRING, allowNull: false },
+    google_id: { type: DataTypes.STRING, allowNull: true }, // Google OAuth ID
   },
   {
     timestamps: false,
