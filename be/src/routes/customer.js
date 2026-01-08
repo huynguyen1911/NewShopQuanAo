@@ -1,6 +1,7 @@
 const express = require("express");
 
 const CustomerController = require("../controllers/CustomerController");
+const GoogleAuthController = require("../controllers/GoogleAuthController");
 const jwtAuth = require("../midlewares/jwtAuth");
 
 let router = express.Router();
@@ -8,6 +9,9 @@ let router = express.Router();
 router.post("/register", CustomerController.register);
 
 router.post("/login", CustomerController.login);
+
+// Google OAuth Login
+router.post("/google-login", GoogleAuthController.googleLogin);
 
 router.post("/logout", CustomerController.logout);
 
