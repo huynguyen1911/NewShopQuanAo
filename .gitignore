@@ -8,6 +8,8 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+
+# Ignore setup scripts và documentation files
 finalize-baseline.ps1
 setup-baseline.ps1
 SPRINT-TIMELINE.md
