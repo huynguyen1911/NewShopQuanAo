@@ -56,8 +56,7 @@ const CartPage = () => {
                     address: values.address,
                     order_items: orderItems
                 };
-
-                // Kiểm tra phương thức thanh toán
+            // Kiểm tra phương thức thanh toán
                 if (values.paymentMethod === 'VNPAY') {
                     // Thanh toán qua VNPay
                     const response = await vnpayService.createPaymentUrl(order);
@@ -70,12 +69,11 @@ const CartPage = () => {
                         });
                     }
                 } else {
-                    // Thanh toán COD
-                    await orderService.placeOrder(order);
-                    clearCart();
-                    swtoast.success({ text: 'Đặt hàng thành công' });
-                }
-            } catch (err) {
+                await orderService.placeOrder(order);
+                clearCart();
+                swtoast.success({ text: 'Đặt hàng thành công' });
+            }
+         } catch (err) {
                 console.log(err);
                 swtoast.error({
                     text: 'Có lỗi khi tạo đơn hàng vui lòng thử lại!'
