@@ -7,6 +7,7 @@ import CartItem from '@/components/cartPage/cartItem';
 import CustomerInforForm from '@/components/cartPage/customerInforForm';
 import { formatPrice } from '@/helpers/format';
 import orderService from '@/services/orderService';
+import vnpayService from '@/services/vnpayService';
 import useCartStore from '@/store/cartStore';
 import { useRouter } from 'next/router';
 
@@ -55,11 +56,24 @@ const CartPage = () => {
                     address: values.address,
                     order_items: orderItems
                 };
-
+            // Kiểm tra phương thức thanh toán
+                if (values.paymentMethod === 'VNPAY') {
+                    // Thanh toán qua VNPay
+                    const response = await vnpayService.createPaymentUrl(order);
+                    if (response.data.code === '00') {
+                        // Redirect đến VNPay
+                        window.location.href = response.data.data;
+                    } else {
+                        swtoast.error({
+                            text: 'Có lỗi khi tạo link thanh toán VNPay!'
+                        });
+                    }
+                } else {
                 await orderService.placeOrder(order);
                 clearCart();
                 swtoast.success({ text: 'Đặt hàng thành công' });
-            } catch (err) {
+            }
+         } catch (err) {
                 console.log(err);
                 swtoast.error({
                     text: 'Có lỗi khi tạo đơn hàng vui lòng thử lại!'

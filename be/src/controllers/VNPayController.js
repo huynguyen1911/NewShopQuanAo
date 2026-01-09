@@ -193,6 +193,77 @@ vnp_Params['vnp_SecureHash'] = signed;
     }
 }
 
+// Xử lý callback từ VNPay
+let vnpayReturn = async (req, res, next) => {
+    let vnp_Params = req.query;
+let secureHash = vnp_Params['vnp_SecureHash'];
+
+delete vnp_Params['vnp_SecureHash'];
+delete vnp_Params['vnp_SecureHashType'];
+
+   vnp_Params = sortObject(vnp_Params);
+
+    let secretKey = vnpayConfig.vnp_HashSecret.trim();
+
+    // Tạo signData bằng qs.stringify() với encode: false
+  let signData = qs.stringify(vnp_Params, { encode: false });
+    
+    let hmac = crypto.createHmac("sha512", secretKey);
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");     
+
+    if(secureHash === signed){
+        let orderId = vnp_Params['vnp_TxnRef'];
+        let rspCode = vnp_Params['vnp_ResponseCode'];
+        
+        try {
+            let order = await Order.findOne({ where: { order_id: orderId } });
+            
+            if (!order) {
+                return res.status(400).json({ code: '97', message: 'Order not found' });
+            }
+
+            if (rspCode === '00') {
+                // Thanh toán thành công
+                await order.update({ payment_status: 'PAID' });
+                
+                // Cập nhật số lượng sản phẩm
+                let orderItems = await Order_Item.findAll({ where: { order_id: orderId } });
+                for (let item of orderItems) {
+                    let product_variant = await Product_Variant.findOne({
+                        where: { product_variant_id: item.product_variant_id }
+                    });
+                    if (product_variant) {
+                        let newQuantity = product_variant.quantity - item.quantity;
+                        await product_variant.update({ quantity: newQuantity });
+                    }
+                }
+
+                return res.status(200).json({ 
+                    code: rspCode, 
+                    message: 'Success',
+                    orderId: orderId 
+                });
+            } else {
+                // Thanh toán thất bại - xóa đơn hàng
+                await order.update({ payment_status: 'FAILED' });
+                await Order_Item.destroy({ where: { order_id: orderId } });
+                await Order_Status_Change_History.destroy({ where: { order_id: orderId } });
+                await order.destroy();
+                
+                return res.status(200).json({ 
+                    code: rspCode, 
+                    message: 'Payment failed',
+                    orderId: orderId 
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json({ code: '99', message: 'Error processing payment' });
+        }
+    } else {
+        return res.status(200).json({ code: '97', message: 'Checksum failed' });
+    }
+}
 
 
 // IPN URL - VNPay gọi về để cập nhật kết quả thanh toán (Server-to-Server)
@@ -290,6 +361,7 @@ let checkPaymentStatus = async (req, res, next) => {
 
 module.exports = {
     createPaymentUrl,
+      vnpayReturn,
     vnpayIPN,
     checkPaymentStatus
 }

@@ -2,12 +2,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from 'antd';
 import { useForm } from 'react-hook-form';
 import { FaTimes } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 import { object, string } from 'yup';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 import InputField from '@/components/inputField';
 import { swtoast } from '@/mixins/swal.mixin';
 import customerService from '@/services/customerService';
 import useCustomerStore from '@/store/customerStore';
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 const Login = (props) => {
     const setCustomerLogin = useCustomerStore((state) => state.setCustomerLogin);
@@ -46,6 +50,35 @@ const Login = (props) => {
         }
     };
 
+    const handleGoogleSuccess = async (credentialResponse) => {
+        
+        console.log("Processing Google Login...", credentialResponse);
+        try {
+            const { credential } = credentialResponse;
+            const res = await customerService.googleLogin(credential);
+            
+            if (res?.data) {
+                setCustomerLogin({
+                    accessToken: res.data.access_token,
+                    accessTokenExpires: res.data.access_token_expires
+                });
+                swtoast.success({ text: 'Chào mừng bạn đã quay trở lại!' });
+                props.toClose();
+            }
+        } catch (error) {
+            console.error("Login failed", error);
+            swtoast.error({
+                text: 'Không thể đăng nhập bằng Google lúc này.'
+            });
+        }
+    };
+
+    const handleGoogleError = () => {
+        swtoast.error({
+            text: 'Đăng nhập Google thất bại. Vui lòng thử lại!'
+        });
+    };
+
     return (
         <div className="user login w-100 position-absolute d-flex" onClick={props.toClose}>
             <div
@@ -63,6 +96,23 @@ const Login = (props) => {
                         <Button htmlType='submit' loading={isSubmitting}>
                             {!isSubmitting && 'Đăng nhập'}
                         </Button>
+                    </div>
+                    
+                    <div className="divider my-3">
+                        <span className="divider-text">Hoặc</span>
+                    </div>
+                    
+                    <div className="google-login-container d-flex justify-content-center">
+                        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={handleGoogleError}
+                                text="continue_with"
+                                shape="pill"
+                                locale="en"
+                                width="100%"
+                            />
+                        </GoogleOAuthProvider>
                     </div>
                 </form>
                 <div className="footer-form d-flex justify-content-center">
