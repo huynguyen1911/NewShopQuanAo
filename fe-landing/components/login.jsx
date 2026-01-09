@@ -51,20 +51,24 @@ const Login = (props) => {
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
+        
+        console.log("Processing Google Login...", credentialResponse);
         try {
-            const respond = await customerService.googleLogin(credentialResponse.credential);
-            const customerInfor = {
-                accessToken: respond?.data?.access_token,
-                accessTokenExpires: respond?.data?.access_token_expires
+            const { credential } = credentialResponse;
+            const res = await customerService.googleLogin(credential);
+            
+            if (res?.data) {
+                setCustomerLogin({
+                    accessToken: res.data.access_token,
+                    accessTokenExpires: res.data.access_token_expires
+                });
+                swtoast.success({ text: 'Chào mừng bạn đã quay trở lại!' });
+                props.toClose();
             }
-            setCustomerLogin(customerInfor);
-            swtoast.success({
-                text: 'Đăng nhập bằng Google thành công!'
-            });
-            props.toClose();
         } catch (error) {
+            console.error("Login failed", error);
             swtoast.error({
-                text: error.response?.data?.message || 'Đăng nhập Google thất bại'
+                text: 'Không thể đăng nhập bằng Google lúc này.'
             });
         }
     };
@@ -103,9 +107,9 @@ const Login = (props) => {
                             <GoogleLogin
                                 onSuccess={handleGoogleSuccess}
                                 onError={handleGoogleError}
-                                text="signin_with"
-                                shape="rectangular"
-                                locale="vi"
+                                text="continue_with"
+                                shape="pill"
+                                locale="en"
                                 width="100%"
                             />
                         </GoogleOAuthProvider>
