@@ -79,8 +79,8 @@ let listAdminSide = async (req, res, next) => {
             product_name: productVariant.Product.product_name,
             colour_name: productVariant.Colour.colour_name,
             size_name: productVariant.Size.size_name,
-            product_image: productVariant.Product_Images[0].path,
-            price: productVariant.Product.Product_Price_Histories[0].price,
+            product_image: productVariant.Product_Images?.[0]?.path || '',
+            price: productVariant.Product.Product_Price_Histories?.[0]?.price || 0,
             quantity: productVariant.quantity,
             state: productVariant.state,
             created_at: productVariant.created_at

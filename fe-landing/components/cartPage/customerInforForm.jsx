@@ -78,6 +78,24 @@ const CustomerInforForm = ({ email = '', customerName = '', phoneNumber = '', ad
                             <p className="">Thanh toán khi nhận hàng</p>
                         </div>
                     </label>
+
+                      <label
+                        htmlFor="vnpay"
+                        className={`payment-item w-100 border-radius d-flex align-items-center justify-content-start ${paymentMethod === 'VNPAY' ? 'active' : ''}`}
+                        onClick={() => setPaymentMethod('VNPAY')}
+                        style={{ cursor: 'pointer', border: paymentMethod === 'VNPAY' ? '1px solid #007bff' : '1px solid #eee' }} // Thêm style inline khác biệt
+                    >
+                        <div className="payment-item-radio">
+                            <Radio checked={paymentMethod === 'VNPAY'}></Radio>
+                        </div>
+                        <div className="payment-item-icon" style={{ color: '#005ba3' }}> {/* Đổi màu icon */}
+                            <FaCreditCard size={24} /> {/* Đổi kích thước icon */}
+                        </div>
+                        <div className="payment-item-name ms-2"> {/* Thêm class bootstrap ms-2 */}
+                            <p className="text-uppercase fw-bold text-primary mb-0">Thanh toán VNPay</p> {/* Đổi text và class */}
+                            <small className="text-muted">ATM / Internet Banking / QR Code</small> {/* Thêm dòng mô tả nhỏ */}
+                        </div>
+                    </label>
                 </div>
             </div>
             <div className={'btn-container' + (isSubmitting ? ' btn-loading' : '')}>
